@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import CreatePost from '../components/CreatePost';
 import PostCard from '../components/PostCard';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = 'https://mini-social-post-app-456x.onrender.com';
 
 // ── Skeleton card shown while loading ────────────────────────────────────────
 const SkeletonCard = () => (

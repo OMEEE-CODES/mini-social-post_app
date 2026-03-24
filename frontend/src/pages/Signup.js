@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { FiUser, FiMail, FiLock, FiUserPlus } from 'react-icons/fi';
 import { BsFillPeopleFill } from 'react-icons/bs';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = 'https://mini-social-post-app-456x.onrender.com';
 
 const Signup = () => {
   const { login } = useAuth();

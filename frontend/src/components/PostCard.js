@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { FiMessageCircle, FiSend } from 'react-icons/fi';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = 'https://mini-social-post-app-456x.onrender.com';
 
 // Helper: get initials from a name
 const getInitials = (name = '') =>

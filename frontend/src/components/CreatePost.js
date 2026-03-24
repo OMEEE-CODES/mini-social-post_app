@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { FiImage, FiSend, FiX } from 'react-icons/fi';
 
-const API_BASE = 'http://localhost:5001';
+const API_BASE = 'https://mini-social-post-app-456x.onrender.com';
 
 const CreatePost = ({ onPostCreated }) => {
   const { token, user } = useAuth();
