@@ -10,7 +10,14 @@ const postRoutes = require('./routes/posts');
 const app = express();
 
 // CORS — allow frontend origin
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://mini-social-post-app-ybuo.vercel.app',
+    /\.vercel\.app$/
+  ],
+  credentials: true
+}));
 
 // Body parsing
 app.use(express.json());
