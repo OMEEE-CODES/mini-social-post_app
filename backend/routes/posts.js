@@ -1,36 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
 const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const Post = require('../models/Post');
 const authMiddleware = require('../middleware/auth');
 
-// ── Multer configuration ─────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const ext = path.extname(file.originalname);
-    cb(null, `${uniqueSuffix}${ext}`);
+// ── Cloudinary configuration ──────────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ── Multer + Cloudinary storage ───────────────────────────────────────────────
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'mini-social-post-app',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [{ width: 1200, crop: 'limit' }],
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extValid = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimeValid = allowedTypes.test(file.mimetype);
-  if (extValid && mimeValid) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files (jpeg, jpg, png, gif, webp) are allowed.'));
-  }
-};
-
 const upload = multer({
   storage,
-  fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 });
 
@@ -56,10 +50,7 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
     let imageUrl = '';
 
     if (req.file) {
-      // Build the accessible URL for the uploaded file
-      const protocol = req.protocol;
-      const host = req.get('host');
-      imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+      imageUrl = req.file.path; // Cloudinary returns the URL in req.file.path
     }
 
     if (!text && !imageUrl) {
@@ -94,10 +85,8 @@ router.put('/:id/like', authMiddleware, async (req, res) => {
     const alreadyLiked = post.likes.some((id) => id.toString() === userId);
 
     if (alreadyLiked) {
-      // Unlike
       post.likes = post.likes.filter((id) => id.toString() !== userId);
     } else {
-      // Like
       post.likes.push(userId);
     }
 
@@ -132,7 +121,6 @@ router.post('/:id/comment', authMiddleware, async (req, res) => {
     post.comments.push(comment);
     await post.save();
 
-    // Return the newly added comment with populated user
     await post.populate('comments.user', 'name');
     const newComment = post.comments[post.comments.length - 1];
 
